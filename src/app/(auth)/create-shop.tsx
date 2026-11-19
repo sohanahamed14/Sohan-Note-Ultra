@@ -1,5 +1,5 @@
-import { ComingSoon } from '@/ui';
+import { CreateShopForm } from '@/features/auth/CreateShopForm';
 
-export default function Screen() {
-  return <ComingSoon title="Create shop" back={false} />;
+export default function CreateShopOnboardingScreen() {
+  return <CreateShopForm onboarding />;
 }
