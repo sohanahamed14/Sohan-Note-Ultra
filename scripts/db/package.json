@@ -1,0 +1,1 @@
+{"name":"db-scripts","private":true,"type":"module","scripts":{"migrate":"node migrate.mjs","verify":"node verify.mjs"},"dependencies":{"@supabase/supabase-js":"^2.119.2","pg":"^8.23.1"}}
