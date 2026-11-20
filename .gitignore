@@ -45,3 +45,5 @@ yarn-error.*
 *.pem
 *.tsbuildinfo
 coverage/
+.vercel
+.env*
