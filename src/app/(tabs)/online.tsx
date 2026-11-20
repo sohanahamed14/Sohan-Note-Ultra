@@ -1,5 +1,5 @@
-import { ComingSoon } from '@/ui';
+import { OnlineDashboardScreen } from '@/features/online/OnlineDashboardScreen';
 
-export default function Screen() {
-  return <ComingSoon title="Online Shop" back={false} />;
+export default function OnlineTabScreen() {
+  return <OnlineDashboardScreen back={false} />;
 }

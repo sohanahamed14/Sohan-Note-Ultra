@@ -57,6 +57,7 @@ export const shops = sqliteTable(
     delivery_outside: integer('delivery_outside').notNull().default(0),
     shop_policy: text('shop_policy'),
     owner_id: text('owner_id').notNull(),
+    online_visits: integer('online_visits').notNull().default(0),
   },
   (t) => [index('shops_owner_idx').on(t.owner_id), index('shops_slug_idx').on(t.slug)],
 );
@@ -298,6 +299,8 @@ export const online_orders = sqliteTable(
       .notNull()
       .default('pending'),
     sale_id: text('sale_id'),
+    note: text('note'),
+    area: text('area'),
   },
   (t) => [index('orders_shop_status_idx').on(t.shop_id, t.status, t.deleted_at)],
 );
