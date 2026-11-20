@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { addDatabaseChangeListener } from 'expo-sqlite';
 import { AppState, Platform } from 'react-native';
 import { create } from 'zustand';
 import { db, initDb } from '@/db/client';
@@ -201,10 +202,23 @@ function startActiveSessionListeners(): void {
     removeWebOnline = () => window.removeEventListener('online', onOnline);
   }
 
+  let removeDbSub: (() => void) | null = null;
+  try {
+    const dbSub = addDatabaseChangeListener((event) => {
+      if (event.tableName === 'kv' || event.tableName === 'sync_state') return;
+      if (useSyncStore.getState().syncing) return;
+      scheduleSync(1500);
+    });
+    removeDbSub = () => dbSub.remove();
+  } catch {
+    // Graceful fallback when native change listener is unavailable.
+  }
+
   activeRuntimeCleanup = () => {
     clearInterval(poll);
     appSub.remove();
     removeWebOnline?.();
+    removeDbSub?.();
   };
 }
 

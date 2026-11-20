@@ -23,6 +23,23 @@ import {
   useToast,
 } from '@/ui';
 
+const UNIT_OPTIONS = [
+  { value: 'pcs', label: 'pcs' },
+  { value: 'kg', label: 'kg' },
+  { value: 'ltr', label: 'ltr' },
+  { value: 'box', label: 'box' },
+  { value: 'pack', label: 'pack' },
+  { value: 'cylinder', label: 'cylinder' },
+];
+
+export type CustomBuyItem = {
+  name: string;
+  unit: string;
+  qty: number;
+  unitPrice: number;
+  sellPrice?: number;
+};
+
 export function ProductPickerSheet({
   visible,
   shopId,
@@ -40,15 +57,17 @@ export function ProductPickerSheet({
   cartQtyByProductId: ReadonlyMap<string, number>;
   onClose: () => void;
   onPickProduct: (product: ProductWithStock) => void;
-  onAddCustomItem: (item: { name: string; qty: number; unitPrice: number }) => void;
+  onAddCustomItem: (item: CustomBuyItem) => void;
 }) {
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState<string>('all');
   const [customMode, setCustomMode] = useState(false);
   const [customName, setCustomName] = useState('');
+  const [customUnit, setCustomUnit] = useState('pcs');
   const [customQty, setCustomQty] = useState(1);
   const [customPrice, setCustomPrice] = useState<number | null>(null);
+  const [customSellPrice, setCustomSellPrice] = useState<number | null>(null);
 
   const categories = useMemo(() => {
     if (!visible || !shopId) return [];
@@ -82,12 +101,16 @@ export function ProductPickerSheet({
     }
     onAddCustomItem({
       name: trimmed,
+      unit: customUnit,
       qty: customQty,
       unitPrice: customPrice ?? 0,
+      sellPrice: customSellPrice ?? undefined,
     });
     setCustomName('');
+    setCustomUnit('pcs');
     setCustomQty(1);
     setCustomPrice(null);
+    setCustomSellPrice(null);
     setCustomMode(false);
     onClose();
   };
@@ -99,20 +122,26 @@ export function ProductPickerSheet({
         setCustomMode(false);
         onClose();
       }}
-      title={customMode ? 'Custom purchase item' : 'Add products to buy'}
+      title={customMode ? 'New / custom item' : 'Add products to buy'}
     >
       {customMode ? (
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.form}>
           <TextField
             label="Item name *"
-            placeholder="e.g. Packaging boxes"
+            placeholder="e.g. Gas 12kg"
             value={customName}
             onChangeText={setCustomName}
             autoFocus
           />
+          <View style={styles.unitWrap}>
+            <AppText variant="secondary" muted>
+              Unit
+            </AppText>
+            <ChipRow options={UNIT_OPTIONS} value={customUnit} onChange={setCustomUnit} />
+          </View>
           <View style={styles.qtyRow}>
             <AppText variant="secondary" muted>
-              Quantity
+              Quantity ({customUnit})
             </AppText>
             <QtyStepper value={customQty} onChange={setCustomQty} min={0.001} step={1} />
           </View>
@@ -121,6 +150,13 @@ export function ProductPickerSheet({
             value={customPrice}
             onChange={setCustomPrice}
             placeholder="0"
+          />
+          <MoneyInput
+            label="Unit sell price (optional)"
+            value={customSellPrice}
+            onChange={setCustomSellPrice}
+            placeholder="Defaults to buy price"
+            helper="Automatically added to Products, Stock & Sell."
           />
           <View style={styles.actions}>
             <Button
@@ -202,6 +238,7 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   listWrap: { maxHeight: 340, minHeight: 150 },
   form: { gap: 12, paddingBottom: 12 },
+  unitWrap: { gap: 4 },
   qtyRow: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -134,8 +134,19 @@ export function QtyStepper({
 }) {
   const { colors } = useTheme();
   const [text, setText] = useState(String(value));
-  if (value !== (text === '' || text === '.' ? min : Number(text))) setText(String(value));
-  const set = (q: number) => onChange(Math.max(min, roundQty(q)));
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    const parsed = text === '' || text === '.' ? NaN : Number(text);
+    if (!Number.isFinite(parsed) || roundQty(parsed) !== value) {
+      setText(String(value));
+    }
+  }
+  const set = (q: number) => {
+    const next = Math.max(min, roundQty(q));
+    setText(String(next));
+    onChange(next);
+  };
   const btn = (icon: 'minus' | 'plus', delta: number) => (
     <Pressable
       accessibilityRole="button"
@@ -156,8 +167,13 @@ export function QtyStepper({
         onChangeText={(t) => {
           if (!/^\d*\.?\d{0,3}$/.test(t)) return;
           setText(t);
-          set(t === '' || t === '.' ? min : Number(t));
+          if (t === '' || t === '.') return;
+          const n = roundQty(Number(t));
+          if (Number.isFinite(n) && n >= min) {
+            onChange(n);
+          }
         }}
+        onBlur={() => setText(String(value))}
         style={[styles.stepInput, { color: colors.text, borderColor: colors.border }]}
       />
       {btn('plus', step)}

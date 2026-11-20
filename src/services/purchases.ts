@@ -34,8 +34,17 @@ export const purchaseItemInputSchema = z.object({
     .optional()
     .transform((v) => (v && v.length > 0 ? v : null)),
   name: z.string().trim().min(1, 'Item name is required').max(120, 'Item name is too long'),
+  unit: z
+    .string()
+    .trim()
+    .min(1)
+    .max(20)
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : 'pcs')),
   qty: z.number().finite('Invalid quantity').positive('Quantity must be greater than zero'),
   unit_price: paisaSchema,
+  sell_price: paisaSchema.optional(),
+  add_to_inventory: z.boolean().optional().default(true),
 });
 
 export const createPurchaseSchema = z.object({
@@ -184,8 +193,11 @@ export function createPurchase(
     return {
       product_id: item.product_id,
       name: item.name,
+      unit: item.unit,
       qty,
       unit_price: item.unit_price,
+      sell_price: item.sell_price,
+      add_to_inventory: item.add_to_inventory,
       total: lineTotal,
     };
   });
@@ -243,12 +255,70 @@ export function createPurchase(
       })
       .run();
 
+    const existingByName = new Map<string, { id: string; sell_price: number }>();
+    const needLookup = normalizedItems.some((i) => !i.product_id && i.add_to_inventory);
+    if (needLookup) {
+      const activeProds = tx
+        .select({ id: products.id, name: products.name, sell_price: products.sell_price })
+        .from(products)
+        .where(active(products, ctx.shopId))
+        .all();
+      for (const p of activeProds) {
+        const key = p.name.trim().toLowerCase();
+        if (!existingByName.has(key)) {
+          existingByName.set(key, { id: p.id, sell_price: p.sell_price });
+        }
+      }
+    }
+
     for (const item of normalizedItems) {
+      let resolvedProductId = item.product_id;
+      let autoCreated = false;
+
+      if (!resolvedProductId && item.add_to_inventory) {
+        const key = item.name.trim().toLowerCase();
+        const existing = existingByName.get(key);
+        if (existing) {
+          resolvedProductId = existing.id;
+          if (item.sell_price !== undefined && item.sell_price > 0 && existing.sell_price === 0) {
+            tx.update(products)
+              .set({ ...touch(), sell_price: item.sell_price })
+              .where(and(active(products, ctx.shopId), eq(products.id, existing.id)))
+              .run();
+            existing.sell_price = item.sell_price;
+          }
+        } else {
+          const prodRow = newRow(ctx.shopId, ctx.userId);
+          const sellPrice = item.sell_price ?? item.unit_price;
+          tx.insert(products)
+            .values({
+              ...prodRow,
+              name: item.name,
+              category_id: null,
+              unit: item.unit,
+              code: null,
+              buy_price: item.unit_price,
+              sell_price: sellPrice,
+              wholesale_price: 0,
+              low_stock_alert: 0,
+              warranty_days: 0,
+              image_uri: null,
+              description: null,
+              online_visible: 0,
+              featured: 0,
+            })
+            .run();
+          resolvedProductId = prodRow.id;
+          autoCreated = true;
+          existingByName.set(key, { id: prodRow.id, sell_price: sellPrice });
+        }
+      }
+
       tx.insert(purchase_items)
         .values({
           ...newRow(ctx.shopId, ctx.userId),
           purchase_id: pRow.id,
-          product_id: item.product_id,
+          product_id: resolvedProductId,
           name: item.name,
           qty: item.qty,
           unit_price: item.unit_price,
@@ -256,22 +326,22 @@ export function createPurchase(
         })
         .run();
 
-      if (item.product_id) {
+      if (resolvedProductId) {
         postStock(tx, {
           shopId: ctx.shopId,
           userId: ctx.userId,
           refId: pRow.id,
           date,
-          productId: item.product_id,
+          productId: resolvedProductId,
           qty: item.qty,
           type: 'purchase',
           note: billNo,
         });
 
-        if (data.update_buy_price) {
+        if (data.update_buy_price && !autoCreated) {
           tx.update(products)
             .set({ ...touch(), buy_price: item.unit_price })
-            .where(and(active(products, ctx.shopId), eq(products.id, item.product_id)))
+            .where(and(active(products, ctx.shopId), eq(products.id, resolvedProductId)))
             .run();
         }
       }

@@ -11,9 +11,10 @@ import { can } from '@/services/permissions';
 import type { ProductWithStock } from '@/services/products';
 import { createPurchase } from '@/services/purchases';
 import { useCurrentShop } from '@/store/useCurrentShop';
+import { scheduleSync } from '@/sync';
 import { useTheme } from '@/theme';
 import { radius } from '@/theme/tokens';
-import { ProductPickerSheet } from '@/features/buy/ProductPickerSheet';
+import { ProductPickerSheet, type CustomBuyItem } from '@/features/buy/ProductPickerSheet';
 import { SupplierPickerSheet } from '@/features/buy/SupplierPickerSheet';
 import { useTableRevision } from '@/features/products/useTableRevision';
 import {
@@ -44,6 +45,7 @@ type CartItem = {
   unit: string;
   qty: number;
   unitPrice: number;
+  sellPrice?: number;
 };
 
 type PayMode = 'full' | 'partial' | 'due';
@@ -187,16 +189,17 @@ export default function BuyScreen() {
     });
   };
 
-  const handleAddCustomItem = (item: { name: string; qty: number; unitPrice: number }) => {
+  const handleAddCustomItem = (item: CustomBuyItem) => {
     setCart((prev) => [
       ...prev,
       {
         key: `custom-${Date.now()}-${prev.length}`,
         productId: null,
         name: item.name,
-        unit: 'pcs',
+        unit: item.unit,
         qty: roundQty(item.qty),
         unitPrice: item.unitPrice,
+        sellPrice: item.sellPrice,
       },
     ]);
   };
@@ -224,8 +227,10 @@ export default function BuyScreen() {
         items: cart.map((c) => ({
           product_id: c.productId,
           name: c.name,
+          unit: c.unit,
           qty: c.qty,
           unit_price: c.unitPrice,
+          sell_price: c.sellPrice,
         })),
         discount: discountPaisa,
         vat: vatPaisa,
@@ -235,6 +240,7 @@ export default function BuyScreen() {
         note: note || null,
         update_buy_price: updateBuyPrice,
       });
+      scheduleSync(1500);
       toast.show(`Saved ${detail.purchase.bill_no}`, 'success');
       resetForm();
       setSavedPurchase({ id: detail.purchase.id, billNo: detail.purchase.bill_no });

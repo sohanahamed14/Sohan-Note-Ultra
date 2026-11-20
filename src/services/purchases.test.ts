@@ -4,7 +4,8 @@ import { cash_entries, party_ledger } from '@/db/schema';
 import type { AppDb } from '@/db/types';
 import { AppError } from '@/lib/errors';
 import { createTestDb } from '@/test/testDb';
-import { createProduct, getProductById, getStock } from './products';
+import { getDashboardStats } from './dashboard';
+import { createProduct, getProductById, getStock, listProductsWithStock } from './products';
 import {
   createPurchase,
   deletePurchase,
@@ -14,7 +15,9 @@ import {
   quickAddSupplier,
   restorePurchase,
 } from './purchases';
-import type { ServiceCtx } from './stock';
+import { getStockValuationReport } from './reports';
+import { createSale, listSellableProducts } from './sales';
+import { getStockSummary, listStockMovements, type ServiceCtx } from './stock';
 
 const ownerCtx: ServiceCtx = { shopId: 'shop1', userId: 'u1', role: 'owner' };
 const cashierCtx: ServiceCtx = { shopId: 'shop1', userId: 'u3', role: 'cashier' };
@@ -241,5 +244,85 @@ describe('purchases service', () => {
     expect(getStock(db, 'shop1', p.id)).toBe(5);
     expect(cashSum(db)).toBe(-20000);
     expect(ledgerSum(db)).toBe(-12000);
+  });
+
+  it('auto-creates product & propagates stock across Sell, Stock, Products, Home, and Reports for custom buy items', () => {
+    const db = createTestDb();
+
+    // Buy 10 pcs Gas as a custom item without pre-creating it in Product list
+    const buy1 = createPurchase(db, ownerCtx, {
+      items: [
+        {
+          name: 'Gas 12kg',
+          unit: 'pcs',
+          qty: 10,
+          unit_price: 120000,
+          sell_price: 140000,
+        },
+      ],
+      paid: 1200000,
+      method: 'cash',
+    });
+
+    const gasId = buy1.items[0].product_id;
+    expect(gasId).toBeTruthy();
+
+    // 1) Products list sees Gas with 10 pcs
+    const prods = listProductsWithStock(db, 'shop1');
+    expect(prods).toHaveLength(1);
+    expect(prods[0]).toMatchObject({
+      id: gasId,
+      name: 'Gas 12kg',
+      unit: 'pcs',
+      buy_price: 120000,
+      sell_price: 140000,
+      stock: 10,
+    });
+
+    // 2) Stock screen summary & movement history see +10 pcs
+    const stockSum = getStockSummary(db, 'shop1', { role: 'owner' });
+    expect(stockSum.totalUnits).toBe(10);
+    expect(stockSum.totalValue).toBe(1200000);
+    expect(stockSum.totalSellValue).toBe(1400000);
+    expect(listStockMovements(db, 'shop1', { productId: gasId! })).toHaveLength(1);
+
+    // 3) Sell POS sees Gas with 10 pcs ready to sell
+    const sellable = listSellableProducts(db, 'shop1');
+    expect(sellable).toHaveLength(1);
+    expect(sellable[0].stock).toBe(10);
+    expect(sellable[0].product.sell_price).toBe(140000);
+
+    // 4) Home dashboard & Reports Stock Valuation match exact 10 units
+    const dash = getDashboardStats(db, 'shop1', { period: 'day', role: 'owner' });
+    expect(dash.stockCount).toBe(10);
+    const valRep = getStockValuationReport(db, { shopId: 'shop1', role: 'owner' });
+    expect(valRep.totalQty).toBe(10);
+    expect(valRep.totalCostValue).toBe(1200000);
+
+    // 5) Buying "gas 12kg" again (case-insensitive custom item) merges into same product (+5 => 15)
+    const buy2 = createPurchase(db, ownerCtx, {
+      items: [{ name: 'gas 12kg', unit: 'pcs', qty: 5, unit_price: 120000 }],
+      paid: 600000,
+      method: 'cash',
+    });
+    expect(buy2.items[0].product_id).toBe(gasId);
+    expect(listProductsWithStock(db, 'shop1')).toHaveLength(1);
+    expect(getStock(db, 'shop1', gasId!)).toBe(15);
+
+    // 6) Selling 3 pcs reduces stock to 12 everywhere
+    createSale(db, ownerCtx, {
+      items: [{ productId: gasId!, name: 'Gas 12kg', qty: 3, unitPrice: 140000 }],
+      paid: 420000,
+      method: 'cash',
+    });
+    expect(getStock(db, 'shop1', gasId!)).toBe(12);
+    expect(listSellableProducts(db, 'shop1')[0].stock).toBe(12);
+    expect(getDashboardStats(db, 'shop1', { period: 'day', role: 'owner' }).stockCount).toBe(12);
+
+    // 7) Deleting buy2 reverses its +5 stock cleanly (12 -> 7), restoring brings it back (7 -> 12)
+    deletePurchase(db, ownerCtx, buy2.purchase.id);
+    expect(getStock(db, 'shop1', gasId!)).toBe(7);
+    restorePurchase(db, ownerCtx, buy2.purchase.id);
+    expect(getStock(db, 'shop1', gasId!)).toBe(12);
   });
 });

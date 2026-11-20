@@ -18,6 +18,7 @@ import { categories, products, stock_movements } from '@/db/schema';
 import { formatTaka, mulQty } from '@/lib/money';
 import { getCartSummary, useCartStore, type CartItem } from '@/features/sell/cartStore';
 import { QuickSellSheet } from '@/features/sell/QuickSellSheet';
+import { useTableRevision } from '@/features/products/useTableRevision';
 import { can } from '@/services/permissions';
 import { listSellableProducts, type SellableProduct } from '@/services/sales';
 import { useCurrentShop } from '@/store/useCurrentShop';
@@ -41,10 +42,13 @@ import {
   useToast,
 } from '@/ui';
 
+const SELL_WATCHED_TABLES = ['products', 'stock_movements', 'categories'] as const;
+
 export default function SellPosScreen() {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const { shopId, role, shop } = useCurrentShop();
+  const { rev } = useTableRevision(SELL_WATCHED_TABLES);
   const toast = useToast();
   const dec = Boolean(shop?.decimal_enabled);
 
@@ -93,11 +97,20 @@ export default function SellPosScreen() {
     if (!shopId) return [];
     void prodUpdated;
     void stockUpdated;
+    void rev;
     return listSellableProducts(db, shopId, {
       search,
       categoryId: categoryId === 'all' ? null : categoryId,
     });
-  }, [shopId, search, categoryId, prodUpdated, stockUpdated]);
+  }, [shopId, search, categoryId, prodUpdated, stockUpdated, rev]);
+
+  const stockByProduct = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const entry of sellable) {
+      map.set(entry.product.id, entry.stock);
+    }
+    return map;
+  }, [sellable]);
 
   const cartByProduct = useMemo(() => {
     const map = new Map<string, CartItem>();
@@ -384,7 +397,17 @@ export default function SellPosScreen() {
                   Line: {formatTaka(mulQty(item.unitPrice, item.qty), dec)}
                 </AppText>
               </View>
-              <QtyStepper value={item.qty} min={0} onChange={(q) => handleStep(item.key, q)} />
+              <QtyStepper
+                value={item.qty}
+                min={0}
+                onChange={(q) =>
+                  handleStep(
+                    item.key,
+                    q,
+                    item.productId ? stockByProduct.get(item.productId) : undefined,
+                  )
+                }
+              />
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`Remove ${item.name}`}

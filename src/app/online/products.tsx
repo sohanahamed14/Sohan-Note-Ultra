@@ -16,6 +16,7 @@ import {
 import { can } from '@/services/permissions';
 import { useCurrentShop } from '@/store/useCurrentShop';
 import { scheduleSync } from '@/sync';
+import { useTableRevision } from '@/features/products/useTableRevision';
 import { useTheme } from '@/theme';
 import { radius } from '@/theme/tokens';
 import {
@@ -31,11 +32,13 @@ import {
 } from '@/ui';
 
 type Filter = 'all' | 'online' | 'hidden';
+const ONLINE_WATCHED_TABLES = ['products', 'stock_movements'] as const;
 
 export default function OnlineProductsScreen() {
   const { colors } = useTheme();
   const toast = useToast();
   const { shopId, role, shop } = useCurrentShop();
+  const { rev } = useTableRevision(ONLINE_WATCHED_TABLES);
   const canManage = can(role, 'manageOnline');
   const decimal = shop?.decimal_enabled === 1;
 
@@ -60,14 +63,18 @@ export default function OnlineProductsScreen() {
 
   const items = useMemo(() => {
     if (!shopId) return [];
+    void rev;
     return listOnlineProducts(db, shopId, { search, filter });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shopId, search, filter, liveProducts, liveMovements]);
+  }, [shopId, search, filter, liveProducts, liveMovements, rev]);
 
   const onlineCount = useMemo(
-    () => (shopId ? listOnlineProducts(db, shopId, { filter: 'online' }).length : 0),
+    () => {
+      void rev;
+      return shopId ? listOnlineProducts(db, shopId, { filter: 'online' }).length : 0;
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [shopId, liveProducts],
+    [shopId, liveProducts, rev],
   );
 
   const handleToggleVisible = (item: OnlineProductRow, next: boolean) => {
