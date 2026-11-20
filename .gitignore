@@ -17,6 +17,7 @@ replica/screens/
 # Expo
 .expo/
 dist/
+releases/
 web-build/
 expo-env.d.ts
 

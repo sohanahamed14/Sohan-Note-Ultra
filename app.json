@@ -8,11 +8,12 @@
     "scheme": "sohannote",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "supportsTablet": true,
       "bundleIdentifier": "com.sohantech.noteultra"
     },
     "android": {
       "package": "com.sohantech.noteultra",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#F6BE25",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -32,12 +33,13 @@
         {
           "backgroundColor": "#F6BE25",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 160
         }
       ],
       "expo-sqlite",
       "expo-secure-store",
-      "expo-web-browser"
+      "expo-web-browser",
+      "./plugins/withReleaseSigning"
     ],
     "experiments": {
       "typedRoutes": true,

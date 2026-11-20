@@ -290,7 +290,7 @@ export default function SettingsScreen() {
       </AppText>
 
       <View style={styles.group}>
-        {/* Expandable Sohan Note App Settings (blue active header matching Hishabee recon) */}
+        {/* Expandable Sohan Note App Settings */}
         <View>
           <Pressable
             accessibilityRole="button"

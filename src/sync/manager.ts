@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { AppState, Platform } from 'react-native';
 import { create } from 'zustand';
-import { db } from '@/db/client';
+import { db, initDb } from '@/db/client';
 import { isNull, eq } from 'drizzle-orm';
 import { shop_members, shops } from '@/db/schema';
 import { AppError, errorMessage } from '@/lib/errors';
@@ -97,6 +97,7 @@ async function runSyncCycle(opts: { silent: boolean }): Promise<SyncResult | nul
     }
     return null;
   }
+  await initDb();
   const session = useSession.getState();
   if (!session.user) {
     if (!opts.silent) {

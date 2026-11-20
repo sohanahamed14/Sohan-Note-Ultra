@@ -75,7 +75,10 @@ export default function SellPosScreen() {
     [shopId],
   );
   const { updatedAt: prodUpdated, error: prodErr } = useLiveQuery(
-    expoDb.select({ id: products.id }).from(products).where(active(products, shopId ?? '')),
+    expoDb
+      .select({ id: products.id })
+      .from(products)
+      .where(active(products, shopId ?? '')),
     [shopId],
   );
   const { updatedAt: stockUpdated, error: stockErr } = useLiveQuery(
@@ -107,10 +110,7 @@ export default function SellPosScreen() {
   const summary = useMemo(() => getCartSummary(items), [items]);
 
   const categoryOptions = useMemo(
-    () => [
-      { value: 'all', label: 'All' },
-      ...catRows.map((c) => ({ value: c.id, label: c.name })),
-    ],
+    () => [{ value: 'all', label: 'All' }, ...catRows.map((c) => ({ value: c.id, label: c.name }))],
     [catRows],
   );
 
@@ -214,10 +214,7 @@ export default function SellPosScreen() {
           data={sellable}
           numColumns={numColumns}
           keyExtractor={(item) => item.product.id}
-          contentContainerStyle={[
-            styles.gridContent,
-            items.length > 0 && styles.gridWithBar,
-          ]}
+          contentContainerStyle={[styles.gridContent, items.length > 0 && styles.gridWithBar]}
           columnWrapperStyle={styles.gridRow}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={
@@ -246,15 +243,13 @@ export default function SellPosScreen() {
             const { product, stock } = item;
             const inCart = cartByProduct.get(product.id);
             const outOfStock = stock <= 0;
-            const lowStock = !outOfStock && product.low_stock_alert > 0 && stock <= product.low_stock_alert;
+            const lowStock =
+              !outOfStock && product.low_stock_alert > 0 && stock <= product.low_stock_alert;
             const stockTone = outOfStock ? 'danger' : lowStock ? 'warning' : 'success';
             const stockLabel = outOfStock ? 'Out of stock' : `${stock} ${product.unit}`;
 
             return (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Add ${product.name}`}
-                onPress={() => handleAdd(item)}
+              <View
                 style={[
                   styles.productCard,
                   {
@@ -265,36 +260,43 @@ export default function SellPosScreen() {
                   },
                 ]}
               >
-                <View style={[styles.thumbWrap, { backgroundColor: colors.surfaceMuted }]}>
-                  {product.image_uri ? (
-                    <Image
-                      source={{ uri: product.image_uri }}
-                      style={styles.thumb}
-                      contentFit="cover"
-                    />
-                  ) : (
-                    <MaterialCommunityIcons
-                      name="package-variant-closed"
-                      size={32}
-                      color={colors.textMuted}
-                    />
-                  )}
-                  {inCart ? (
-                    <View style={[styles.qtyBadge, { backgroundColor: colors.accent }]}>
-                      <AppText variant="label" bold style={styles.whiteText}>
-                        {inCart.qty}
-                      </AppText>
-                    </View>
-                  ) : null}
-                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Add ${product.name}`}
+                  onPress={() => handleAdd(item)}
+                >
+                  <View style={[styles.thumbWrap, { backgroundColor: colors.surfaceMuted }]}>
+                    {product.image_uri ? (
+                      <Image
+                        source={{ uri: product.image_uri }}
+                        style={styles.thumb}
+                        contentFit="cover"
+                      />
+                    ) : (
+                      <MaterialCommunityIcons
+                        name="package-variant-closed"
+                        size={32}
+                        color={colors.textMuted}
+                      />
+                    )}
+                    {inCart ? (
+                      <View style={[styles.qtyBadge, { backgroundColor: colors.accent }]}>
+                        <AppText variant="label" bold style={styles.whiteText}>
+                          {inCart.qty}
+                        </AppText>
+                      </View>
+                    ) : null}
+                  </View>
 
+                  <View style={styles.cardBody}>
+                    <AppText variant="secondary" bold numberOfLines={2} style={styles.prodName}>
+                      {product.name}
+                    </AppText>
+                    <AmountText paisa={product.sell_price} decimal={dec} variant="secondary" />
+                    <Badge label={stockLabel} tone={stockTone} />
+                  </View>
+                </Pressable>
                 <View style={styles.cardBody}>
-                  <AppText variant="secondary" bold numberOfLines={2} style={styles.prodName}>
-                    {product.name}
-                  </AppText>
-                  <AmountText paisa={product.sell_price} decimal={dec} variant="secondary" />
-                  <Badge label={stockLabel} tone={stockTone} />
-
                   {inCart ? (
                     <View style={styles.miniStepper}>
                       <Pressable
@@ -319,7 +321,7 @@ export default function SellPosScreen() {
                     </View>
                   ) : null}
                 </View>
-              </Pressable>
+              </View>
             );
           }}
         />
@@ -382,11 +384,7 @@ export default function SellPosScreen() {
                   Line: {formatTaka(mulQty(item.unitPrice, item.qty), dec)}
                 </AppText>
               </View>
-              <QtyStepper
-                value={item.qty}
-                min={0}
-                onChange={(q) => handleStep(item.key, q)}
-              />
+              <QtyStepper value={item.qty} min={0} onChange={(q) => handleStep(item.key, q)} />
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`Remove ${item.name}`}
@@ -452,9 +450,7 @@ export default function SellPosScreen() {
       <QuickSellSheet
         visible={quickSellOpen}
         onClose={() => setQuickSellOpen(false)}
-        onCreated={(saleId) =>
-          router.push({ pathname: '/invoice/[id]', params: { id: saleId } })
-        }
+        onCreated={(saleId) => router.push({ pathname: '/invoice/[id]', params: { id: saleId } })}
       />
     </Screen>
   );

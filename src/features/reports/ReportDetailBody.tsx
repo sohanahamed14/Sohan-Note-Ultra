@@ -150,10 +150,10 @@ export function ReportDetailBody({
         { id: 'gross', title: 'Gross Sales', subtitle: 'Before discounts & VAT', amount: report.grossSales, tone: 'neutral' },
         { id: 'disc', title: 'Discounts Given', subtitle: 'Invoice discounts', amount: -report.totalDiscount, tone: report.totalDiscount > 0 ? 'negative' : 'neutral' },
         { id: 'vat', title: 'VAT Collected', subtitle: 'Tax on sales', amount: report.totalVat, tone: 'neutral' },
-        { id: 'netSales', title: 'Net Sales', subtitle: `${report.salesCount} invoices`, amount: report.netSales, tone: 'positive' },
+        { id: 'netSales', title: 'Net Sales', subtitle: `${report.salesCount} ${report.salesCount === 1 ? 'invoice' : 'invoices'}`, amount: report.netSales, tone: 'positive' },
         { id: 'cogs', title: 'Cost of Goods Sold (COGS)', subtitle: 'At historical buy price snapshot', amount: -report.cogs, tone: 'negative' },
         { id: 'grossProfit', title: 'Gross Profit', subtitle: `${report.grossMarginPercent}% of net sales`, amount: report.grossProfit, tone: 'auto' },
-        { id: 'exp', title: 'Operating Expenses', subtitle: `${report.expenseCount} expense entries`, amount: -report.totalExpenses, tone: 'negative' },
+        { id: 'exp', title: 'Operating Expenses', subtitle: `${report.expenseCount} ${report.expenseCount === 1 ? 'expense entry' : 'expense entries'}`, amount: -report.totalExpenses, tone: 'negative' },
         { id: 'netProfit', title: 'Net Profit', subtitle: `${report.netMarginPercent}% net margin`, amount: report.netProfit, tone: 'auto' },
         { id: 'pur', title: 'Purchases (Memo)', subtitle: 'Inventory bought in period', amount: report.totalPurchases, tone: 'neutral' },
       ];
@@ -162,7 +162,7 @@ export function ReportDetailBody({
 
     case 'sales': {
       kpis = [
-        { label: 'Total Sales', value: fmt(report.total), sub: `${report.count} invoices`, tone: 'accent' },
+        { label: 'Total Sales', value: fmt(report.total), sub: `${report.count} ${report.count === 1 ? 'invoice' : 'invoices'}`, tone: 'accent' },
         { label: 'Collected', value: fmt(report.paid), tone: 'positive' },
         { label: 'Due', value: fmt(report.due), tone: report.due > 0 ? 'negative' : 'neutral' },
         { label: 'Discount / VAT', value: fmt(report.discount), sub: `VAT ${fmt(report.vat)}` },

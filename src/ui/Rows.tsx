@@ -21,13 +21,8 @@ export function ListRow({
   onPress?: () => void;
 }) {
   const { colors } = useTheme();
-  return (
-    <Pressable
-      accessibilityRole={onPress ? 'button' : undefined}
-      onPress={onPress}
-      disabled={!onPress}
-      style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border }]}
-    >
+  const body = (
+    <>
       {left}
       <View style={styles.flex}>
         <AppText numberOfLines={1}>{title}</AppText>
@@ -37,8 +32,19 @@ export function ListRow({
           </AppText>
         ) : null}
       </View>
+    </>
+  );
+  return (
+    <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      {onPress ? (
+        <Pressable accessibilityRole="button" onPress={onPress} style={styles.rowMain}>
+          {body}
+        </Pressable>
+      ) : (
+        <View style={styles.rowMain}>{body}</View>
+      )}
       {right}
-    </Pressable>
+    </View>
   );
 }
 
@@ -151,6 +157,13 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  rowMain: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minWidth: 0,
   },
   settings: {
     flexDirection: 'row',

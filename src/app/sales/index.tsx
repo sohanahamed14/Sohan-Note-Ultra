@@ -248,34 +248,38 @@ export default function SalesLedgerScreen() {
                   : 'Due';
 
             return (
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => setSelectedSaleId(item.id)}
+              <View
                 style={[
                   styles.saleCard,
                   { backgroundColor: colors.surface, borderColor: colors.border },
                 ]}
               >
-                <View style={styles.rowTop}>
-                  <View style={styles.titleRow}>
-                    <AppText bold>{item.invoice_no}</AppText>
-                    <Badge label={badgeText} tone={tone} />
-                    {item.kind !== 'pos' ? (
-                      <Badge label={item.kind.toUpperCase()} tone="neutral" />
-                    ) : null}
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => setSelectedSaleId(item.id)}
+                  style={{ gap: 6 }}
+                >
+                  <View style={styles.rowTop}>
+                    <View style={styles.titleRow}>
+                      <AppText bold>{item.invoice_no}</AppText>
+                      <Badge label={badgeText} tone={tone} />
+                      {item.kind !== 'pos' ? (
+                        <Badge label={item.kind.toUpperCase()} tone="neutral" />
+                      ) : null}
+                    </View>
+                    <AmountText paisa={item.total} decimal={dec} />
                   </View>
-                  <AmountText paisa={item.total} decimal={dec} />
-                </View>
 
-                <View style={styles.rowMid}>
-                  <AppText variant="label" muted numberOfLines={1} style={styles.flex}>
-                    {item.partyName ?? 'Walk-in'} · {formatDateTime(item.date)} ·{' '}
-                    {formatMethodLabel(item.method)}
-                  </AppText>
-                  <AppText variant="label" muted>
-                    {item.itemCount} {item.itemCount === 1 ? 'item' : 'items'}
-                  </AppText>
-                </View>
+                  <View style={styles.rowMid}>
+                    <AppText variant="label" muted numberOfLines={1} style={styles.flex}>
+                      {item.partyName ?? 'Walk-in'} · {formatDateTime(item.date)} ·{' '}
+                      {formatMethodLabel(item.method)}
+                    </AppText>
+                    <AppText variant="label" muted>
+                      {item.itemCount} {item.itemCount === 1 ? 'item' : 'items'}
+                    </AppText>
+                  </View>
+                </Pressable>
 
                 {item.due > 0 ? (
                   <View style={styles.rowBottom}>
@@ -298,7 +302,7 @@ export default function SalesLedgerScreen() {
                     ) : null}
                   </View>
                 ) : null}
-              </Pressable>
+              </View>
             );
           }}
         />

@@ -58,7 +58,7 @@ function TabBar({ state, navigateToTab }: TabBarProps) {
   );
 }
 
-export const unstable_settings = { initialRouteName: 'index' };
+export const unstable_settings = { anchor: 'index' };
 
 export default function TabsLayout() {
   return (

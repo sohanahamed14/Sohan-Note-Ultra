@@ -102,7 +102,7 @@ export function InvoiceReceiptCard({ data }: { data: InvoiceData }) {
           <AppText variant="label" muted bold style={styles.colQty}>
             QTY
           </AppText>
-          <AppText variant="label" muted bold style={styles.colAmt}>
+          <AppText variant="label" muted bold style={styles.colAmtHead}>
             AMOUNT
           </AppText>
         </View>
@@ -232,15 +232,17 @@ const styles = StyleSheet.create({
   badgeWrap: { marginTop: 4 },
   metaRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   rightCol: { alignItems: 'flex-end' },
-  tableHead: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
+  tableHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    gap: 8,
     paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   colQty: { width: 48, textAlign: 'right' },
   colAmt: { width: 100, alignItems: 'flex-end' },
+  colAmtHead: { width: 100, textAlign: 'right' },
   totalsBox: { gap: 6, paddingTop: 4 },
   totalLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   noteBox: { padding: 10, borderRadius: radius.row, borderWidth: 1 },

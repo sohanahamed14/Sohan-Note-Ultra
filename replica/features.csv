@@ -1,0 +1,40 @@
+feature,area,priority,original,clone,notes
+Google sign-in via Supabase OAuth,auth,must,yes,yes,Native deep link + web callback
+Create shop onboarding,shops,must,yes,yes,Name business type phone address
+Switch between multiple shops,shops,must,yes,yes,Role badges + create additional shops
+Home dashboard with KPI stats (Day/Month),home,must,yes,yes,Balance sales expense due stock count
+Home quick action Buy/Sell + 4-col icon grids,home,must,yes,yes,Permission filtered
+Setup progress guide card,home,should,yes,yes,Computed completion + dismissible
+Product catalog CRUD with categories and units,products,must,yes,yes,Search filters photos cost hidden from cashier
+Low-stock alerts and threshold badges,stock,must,yes,yes,Badges on home stock and notifications
+Stock valuation and manual adjustment with history,stock,must,yes,yes,Ledger-derived from stock_movements
+Purchase / Stock-in from suppliers (paid/partial/due),purchase,must,yes,yes,Atomic tx stock+ cash- ledger-
+Purchase ledger with date filters and reversal delete,purchase,must,yes,yes,Soft delete reverses postings
+Sell POS with product grid cart and Quick Sell,sales,must,yes,yes,Stock guard + price edit
+Checkout with discount (BDT/%) VAT and paid/partial/due,sales,must,yes,yes,Atomic tx + buy_price snapshot
+Invoice PDF generation share WhatsApp and system print,invoice,must,yes,yes,Includes shop logo footer and payment QR
+Sales ledger with filters collect due and reversal delete,sales,must,yes,yes,Profit hidden from cashier
+Customer and Supplier Due / Baki Khata ledger,khata,must,yes,yes,Receivable/payable tabs
+Party detail ledger with Give/Take and PDF/WhatsApp statement,khata,must,yes,yes,Free deep links + PDF statement
+Contacts directory (customers suppliers employees),contacts,must,yes,yes,Add edit soft-delete
+Expense book with custom categories and date filter,expenses,must,yes,yes,Auto-posts to cashbox
+Cashbox daily balance opening/closing and manual in/out,cashbox,must,yes,yes,Method breakdown + ledger derived
+Capital invest and withdraw ledger,capital,should,yes,yes,Over-withdrawal guard
+Business reports (P&L sales purchase expense stock due cash product profit),reports,must,yes,yes,Owner/manager gated
+Report export to PDF and Excel (.xlsx),reports,must,yes,yes,Native share + web download
+Employees & role-based permissions (Owner/Manager/Cashier),access,must,yes,yes,Invite by email + RLS + UI gating
+Warranty tracking for sold items,warranty,should,yes,yes,Active/expiring/expired filters
+Recycle bin with restore and permanent delete,recycle-bin,should,yes,yes,Restores postings via ref_id
+Online Shop management tab (stats link QR settings products orders delivery policy themes),online,must,yes,yes,Order status workflow + convert to sale
+Public web storefront (/s/slug) with cart and WhatsApp order,online,must,yes,yes,Anon RPCs + server-side pricing
+Offline-first local SQLite + Supabase cloud sync,sync,must,yes,yes,Push dirty + pull server_seq + LWW
+Local JSON backup export/import + Data backup trigger,backup,must,yes,yes,Updates last_backup_at
+Settings (profile payment QR custom categories decimal toggle theme app lock PIN reset),settings,must,yes,yes,Light/dark/system + PIN/biometrics gate
+Shareable Business Card (PDF/QR),business-card,could,yes,yes,3 templates
+Notifications (low stock + pending online orders),notifications,should,yes,yes,Read/dismiss persisted
+Mobile top-up and carrier recharge,excluded,could,yes,skip,Requires telecom/govt permission
+Payment gateway / bKash / Nagad direct merchant API,excluded,could,yes,skip,Requires govt/MFS permission
+Paid bulk SMS reminders and phone OTP,excluded,could,yes,skip,Requires BTRC-registered SMS gateway
+Barcode scanner and Bluetooth thermal printer,excluded,could,yes,skip,Excluded per user scope
+Expiry date tracking,excluded,could,yes,skip,Excluded per user scope
+Subscriptions ads AI credits extra income tab,excluded,could,yes,skip,Vendor monetization excluded

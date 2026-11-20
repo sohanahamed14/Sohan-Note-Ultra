@@ -1,0 +1,16 @@
+{
+  "avoid": ["Hishabee", "Hishabee Technologies", "hishabee"],
+  "app_store": {
+    "name": "Sohan Note Ultra",
+    "subtitle": "POS, Khata & Inventory Ledger",
+    "promotional_text": "Offline-first POS billing, due khata, stock tracking, profit reports, and a shareable online shop for your business.",
+    "description": "Sohan Note Ultra is a complete offline-first bookkeeping, POS, inventory, and online storefront app built for small shops and growing businesses.\n\nRecord sales and purchases in seconds, track customer and supplier dues, manage cash flow, and export detailed profit and loss reports even without an internet connection. Everything syncs safely to the cloud when you are back online.\n\nKey features:\n- Fast POS billing with discounts, VAT, partial dues, and quick-sell mode\n- Shareable PDF invoices with your shop logo, footer, and payment QR\n- Customer and supplier due ledger (Khata) with running balances and PDF statements\n- Product catalog, real-time stock tracking, low-stock alerts, and purchase bills\n- Daily cashbox, expense book, capital tracking, and warranty log\n- Profit & loss, sales, purchase, stock, due, and cash flow reports with PDF and Excel export\n- Multi-shop switching and role-based team access for owners, managers, and cashiers\n- Instant public online storefront link with WhatsApp ordering\n- Local JSON backup, recycle bin restore, light and dark themes, and PIN/biometric app lock",
+    "keywords": "billing,invoice,accounting,shop,stock,expense,cashbook,storefront,due,baki,sales,profit,retail",
+    "whats_new": "Initial release of Sohan Note Ultra with offline POS, khata ledger, inventory, reports, team roles, and online storefront."
+  },
+  "google_play": {
+    "title": "Sohan Note Ultra: POS & Khata",
+    "short_description": "Offline-first POS billing, due khata, stock ledger, P&L reports & online shop.",
+    "full_description": "Sohan Note Ultra is a complete offline-first bookkeeping, POS, inventory, and online storefront app built for small shops, retail counters, pharmacies, and wholesalers.\n\nWork reliably offline and sync automatically to the cloud whenever internet is available.\n\nCore modules:\n- Sales & POS: product grid, cart, quick sell, discount (BDT or %), VAT, partial/due checkout, and instant PDF receipts\n- Due Khata Ledger: separate customer and supplier balances, Give/Take entries, and shareable PDF or WhatsApp statements\n- Products & Stock: categories, units, opening stock, low-stock alerts, manual stock adjustments, and full movement history\n- Purchases: stock-in bills from suppliers with paid, partial, or due tracking\n- Cashbox, Expenses & Capital: daily cash inflows and outflows derived from every transaction, categorized expenses, and owner capital tracking\n- Business Reports: Profit & Loss, sales, purchases, expenses, stock valuation, dues, cash flow, and product-wise margins exported as PDF or Excel (.xlsx)\n- Multi-Shop & Team Access: run multiple shops under one account and invite managers or cashiers with role-based permissions\n- Online Shop: publish selected products to a web catalog link where buyers send orders directly to your WhatsApp\n- Safety & Backup: automatic cloud sync, local JSON backup/restore, recycle bin recovery, and PIN/biometric app lock"
+  }
+}
