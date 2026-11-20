@@ -26,7 +26,7 @@ module.exports = function withReleaseSigning(config) {
         `$1${releaseBlock}`,
       )
       .replace(
-        /(release\s*\{[\s\S]*?)signingConfig signingConfigs\.debug/,
+        /(buildTypes\s*\{[\s\S]*?release\s*\{[\s\S]*?)signingConfig signingConfigs\.debug/,
         `$1signingConfig System.getenv("ANDROID_KEYSTORE_PATH") ? signingConfigs.release : signingConfigs.debug`,
       );
     return cfg;
